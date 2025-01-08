@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LiveLife Wizard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        form {
+            max-width: 400px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .results {
+            max-width: 600px;
+            margin: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .action-buttons {
+            margin-top: 10px;
+        }
+        .action-buttons button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to LiveLife</h1>
+    <div id="wizard">
+        <form id="wizardForm">
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" name="weight" required>
+
+            <label for="height">Height (cm):</label>
+            <input type="number" id="height" name="height" required>
+
+            <label for="goal">Goal:</label>
+            <select id="goal" name="goal" required>
+                <option value="weight_loss">Weight Loss</option>
+                <option value="muscle_gain">Muscle Gain</option>
+                <option value="general_fitness">General Fitness</option>
+            </select>
+
+            <button type="button" onclick="generatePlan()">Submit</button>
+        </form>
+    </div>
+
+    <div id="results" class="results" style="display: none;">
+        <h1>Your Personalized LiveLife Plan</h1>
+        <h2>Fitness Program</h2>
+        <p id="fitnessProgram"></p>
+        <div class="action-buttons">
+            <button onclick="window.open('https://zing-gym.coach/', '_blank')">Book your AI coach</button>
+            <button onclick="window.open('https://fitmotif.gr/category/personal-trainer/', '_blank')">Book your real coach</button>
+        </div>
+        <h2>Diet Plan</h2>
+        <p id="dietPlan"></p>
+        <div class="action-buttons">
+            <button onclick="window.open('https://wolt.com/el/grc?tld=gr', '_blank')">Order your meal through Wolt</button>
+            <button onclick="window.open('https://www.e-food.gr/', '_blank')">Order your meal through efood</button>
+        </div>
+        <h2>Mental Health Program</h2>
+        <p id="mentalHealthProgram"></p>
+        <div class="action-buttons">
+            <button onclick="window.open('https://www.amazon.com', '_blank')">Order books</button>
+            <button onclick="window.open('https://www.hikingproject.com', '_blank')">Book hiking trips</button>
+        </div>
+        <button onclick="resetForm()">Start Over</button>
+    </div>
+
+    <script>
+        const programs = {
+            fitness: {
+                weight_loss: [
+                    "30-minute HIIT (Jump squats, push-ups, mountain climbers, 3 sets x 12 reps).",
+                    "Rest day with light walking.",
+                    "40-minute Cardio (brisk walking or cycling).",
+                    "HIIT (Burpees, lunges, planks, 3 sets x 12 reps).",
+                    "Strength training (light weights, squats, push-ups).",
+                    "Yoga or stretching exercises.",
+                    "Rest day."
+                ],
+                muscle_gain: [
+                    "Upper body (Bench press, bicep curls, pull-ups, 4 sets x 8 reps).",
+                    "Lower body (Squats, deadlifts, lunges, 4 sets x 8 reps).",
+                    "Rest day.",
+                    "Full-body workout (Deadlifts, pull-ups, bench press).",
+                    "Cardio and core (Cycling, planks, sit-ups, 3 sets x 12 reps).",
+                    "Rest day.",
+                    "Active recovery (walking or swimming)."
+                ],
+                general_fitness: [
+                    "Cardio (30-minute jog or brisk walk).",
+                    "Bodyweight exercises (Push-ups, squats, planks, 3 sets x 15 reps).",
+                    "Rest day.",
+                    "Strength training (light weights, lunges, bicep curls).",
+                    "Cardio and flexibility (Yoga or stretching).",
+                    "Core workout (Planks, sit-ups, leg raises, 3 sets x 12 reps).",
+                    "Rest day."
+                ]
+            },
+            diet: {
+                weight_loss: [
+                    "Oatmeal with berries (Breakfast), Grilled chicken salad (Lunch), Steamed salmon with veggies (Dinner).",
+                    "Smoothie (Breakfast), Turkey wrap (Lunch), Lentil soup (Dinner).",
+                    "Greek yogurt and nuts (Breakfast), Quinoa salad (Lunch), Grilled shrimp with asparagus (Dinner).",
+                    "Scrambled eggs with avocado (Breakfast), Veggie stir-fry (Lunch), Baked cod (Dinner).",
+                    "Protein pancakes (Breakfast), Tuna salad (Lunch), Chicken breast with broccoli (Dinner).",
+                    "Smoothie bowl (Breakfast), Chickpea salad (Lunch), Beef stew (Dinner).",
+                    "Fruit bowl (Breakfast), Grilled veggie wrap (Lunch), Mushroom risotto (Dinner)."
+                ],
+                muscle_gain: [
+                    "Scrambled eggs with avocado (Breakfast), Chicken wrap (Lunch), Beef stir-fry (Dinner).",
+                    "Protein shake (Breakfast), Salmon bowl (Lunch), Pork chops with sweet potato (Dinner).",
+                    "Omelette with veggies (Breakfast), Quinoa and chicken salad (Lunch), Grilled steak (Dinner).",
+                    "Smoothie with almond milk (Breakfast), Tuna sandwich (Lunch), Spaghetti bolognese (Dinner).",
+                    "Yogurt parfait (Breakfast), Shrimp stir-fry (Lunch), Turkey burger (Dinner).",
+                    "Pancakes with peanut butter (Breakfast), Grilled fish (Lunch), Roast chicken (Dinner).",
+                    "Bagel with cream cheese (Breakfast), Veggie wrap (Lunch), Beef stew (Dinner)."
+                ],
+                general_fitness: [
+                    "Smoothie bowl (Breakfast), Grilled veggie sandwich (Lunch), Lentil soup (Dinner).",
+                    "Eggs and toast (Breakfast), Chicken salad (Lunch), Baked salmon (Dinner).",
+                    "Greek yogurt with honey (Breakfast), Tuna wrap (Lunch), Stir-fried tofu (Dinner).",
+                    "Protein shake (Breakfast), Grilled chicken (Lunch), Veggie pasta (Dinner).",
+                    "Oatmeal (Breakfast), Turkey sandwich (Lunch), Beef stir-fry (Dinner).",
+                    "Pancakes with fruit (Breakfast), Salmon salad (Lunch), Roast vegetables (Dinner).",
+                    "Bagel with eggs (Breakfast), Veggie bowl (Lunch), Chicken curry (Dinner)."
+                ]
+            },
+            mental_health: {
+                stress_reduction: [
+                    "10 minutes of mindfulness meditation.",
+                    "Journaling session.",
+                    "Walking in nature.",
+                    "10 minutes of yoga.",
+                    "Volunteering at a support center.",
+                    "Deep breathing exercises.",
+                    "Reflective journaling."
+                ],
+                focus_improvement: [
+                    "Pomodoro session.",
+                    "Guided breathing.",
+                    "Reading a psychology article.",
+                    "Walking meditation.",
+                    "Volunteering at a shelter.",
+                    "Gratitude journaling.",
+                    "Reflective reading."
+                ],
+                general_wellbeing: [
+                    "Practicing a hobby.",
+                    "Group volunteering.",
+                    "Reflective journaling.",
+                    "Deep breathing.",
+                    "Reading an inspirational book.",
+                    "Practicing gratitude.",
+                    "Spending quality time with loved ones."
+                ]
+            }
+        };
+
+        function generatePlan() {
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('height').value;
+            const goal = document.getElementById('goal').value;
+
+            const fitnessPlan = programs.fitness[goal].map((item, index) => `Day ${index + 1}: ${item}`).join('<br>');
+            const dietPlan = programs.diet[goal].map((item, index) => `Day ${index + 1}: ${item}`).join('<br>');
+            const mentalHealthPlan = programs.mental_health[goal === 'general_fitness' 
+                ? 'general_wellbeing' 
+                : 'stress_reduction'].map((item, index) => `Day ${index + 1}: ${item}`).join('<br>');
+
+            document.getElementById('fitnessProgram').innerHTML = fitnessPlan;
+            document.getElementById('dietPlan').innerHTML = dietPlan;
+            document.getElementById('mentalHealthProgram').innerHTML = mentalHealthPlan;
+
+            document.getElementById('wizard').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function resetForm() {
+            document.getElementById('wizardForm').reset();
+            document.getElementById('wizard').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
